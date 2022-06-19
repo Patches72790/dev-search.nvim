@@ -1,7 +1,7 @@
 local M = {}
 
 -- Initializes the search command for developer searching
-M.init_search = function()
+local init_search = function()
 	local Job = require("plenary.job")
 	local error = require("config.util").error
 
@@ -21,6 +21,10 @@ M.init_search = function()
 			})
 			:start()
 	end, { desc = "Send a call to developer search to local default browser" })
+end
+
+M.setup = function()
+	init_search()
 end
 
 return M
