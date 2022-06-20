@@ -30,7 +30,8 @@ M.make_browser_request = function()
 		local query = "&q=" .. vim.fn.input("Dev search query: ")
 		Job
 			:new({
-				command = url_command .. " " .. url .. query,
+				command = url_command,
+				args = url .. query,
 				on_stderr = function(err)
 					error("Error executing dev-search with message: " .. err)
 				end,
