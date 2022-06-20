@@ -16,18 +16,18 @@ end
 
 M.make_browser_request = function()
 	local url = "https://cse.google.com/cse?cx=c897a4eacb3fd1332"
-	local query = "&q=" .. vim.fn.input("Dev search query: ")
 
 	local url_command = find_open_url_command()
 
 	if url_command == nil then
 		return {
-            error = true,
-            message  = "Error finding open url os command"
-        }
+			error = true,
+			message = "Error finding open url os command",
+		}
 	end
 
 	return function()
+		local query = "&q=" .. vim.fn.input("Dev search query: ")
 		Job
 			:new({
 				command = url_command .. url .. query,
