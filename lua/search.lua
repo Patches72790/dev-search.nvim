@@ -18,7 +18,7 @@ local init_search = function()
 
 	vim.api.nvim_create_user_command(
 		"DevSearch",
-		make_browser_request,
+		browser_request_fn,
 		{ desc = "Send a developer search request to default browser" }
 	)
 end
