@@ -31,7 +31,7 @@ M.make_browser_request = function()
 		Job
 			:new({
 				command = url_command,
-				args = url .. query,
+				args = { url .. query },
 				on_stderr = function(err)
 					error("Error executing dev-search with message: " .. err)
 				end,
