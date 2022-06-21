@@ -3,9 +3,9 @@ local M = {}
 local Job = require("plenary.job")
 
 local find_open_url_command = function()
-	if vim.fn.has("mac") == 0 then
+	if vim.fn.has("mac") == 1 then
 		return "open"
-	elseif vim.fn.has("linux") == 0 then
+	elseif vim.fn.has("linux") == 1 then
 		return "xdg-open"
 	elseif vim.fn.has("win64") ~= 0 then
 		return "start"
