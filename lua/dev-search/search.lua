@@ -1,7 +1,11 @@
 local M = {}
 
 -- Initializes the search command for developer searching
-local init_search = function(search_table)
+-- Args:
+--  search_table is a table with base url and context id
+--
+--  Returns nothing, only creates user command for dev search
+M.init_search = function(search_table)
 	local error = require("config.util").error
 	local make_browser_request = require("util").make_browser_request
 
@@ -21,16 +25,6 @@ local init_search = function(search_table)
 		browser_request_fn,
 		{ desc = "Send a developer search request to default browser" }
 	)
-end
-
---
--- Provide a search object of the form
--- search {
--- base_url = "https://google.com"
--- context_id = "12345"
--- }
-M.setup = function(search_table)
-	init_search(search_table)
 end
 
 return M
