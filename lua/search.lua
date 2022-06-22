@@ -1,7 +1,7 @@
 local M = {}
 
 -- Initializes the search command for developer searching
-local init_search = function()
+local init_search = function(search_table)
 	local error = require("config.util").error
 	local make_browser_request = require("util").make_browser_request
 
@@ -10,7 +10,7 @@ local init_search = function()
 		return
 	end
 
-	local browser_request_fn = make_browser_request()
+	local browser_request_fn = make_browser_request(search_table)
 
 	if type(browser_request_fn) == "table" then
 		error("Error creating browser request function: " .. browser_request_fn.message)
@@ -23,8 +23,14 @@ local init_search = function()
 	)
 end
 
-M.setup = function()
-	init_search()
+--
+-- Provide a search object of the form
+-- search {
+-- base_url = "https://google.com"
+-- context_id = "12345"
+-- }
+M.setup = function(search_table)
+	init_search(search_table)
 end
 
 return M

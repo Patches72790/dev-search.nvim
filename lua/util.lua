@@ -14,9 +14,16 @@ local find_open_url_command = function()
 	end
 end
 
-M.make_browser_request = function()
-	local url = "https://cse.google.com/cse?cx=c897a4eacb3fd1332"
+local build_search_url = function(search_table)
+	local base_url, context_id = table.unpack(search_table)
+	if not base_url or not context_id then
+		return "https://google.com/"
+	end
+	return base_url .. "/cse?cx=" .. context_id --https://cse.google.com/cse?cx=c897a4eacb3fd1332"
+end
 
+M.make_browser_request = function(search_table)
+	local url = build_search_url(search_table)
 	local url_command = find_open_url_command()
 
 	if url_command == nil then
