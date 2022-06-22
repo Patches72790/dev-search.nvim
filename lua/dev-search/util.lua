@@ -15,7 +15,8 @@ local find_open_url_command = function()
 end
 
 local build_search_url = function(search_table)
-	local base_url, context_id = table.unpack(search_table)
+	local base_url = search_table["base_url"]
+	local context_id = search_table["context_id"]
 	if not base_url or not context_id then
 		return "https://google.com/"
 	end
