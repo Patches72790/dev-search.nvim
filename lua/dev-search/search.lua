@@ -9,7 +9,7 @@ M.init_search = function()
 	local make_browser_request = require("dev-search.util").make_browser_request
 
 	if vim.fn.executable("dev-search") == 0 then
-		vim.api.nvim_notify("executable dev-search doesn't exist", vim.log.levels.ERROR)
+		vim.api.nvim_notify("executable dev-search doesn't exist", vim.log.levels.ERROR, {})
 		return
 	end
 
