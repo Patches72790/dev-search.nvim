@@ -20,7 +20,15 @@ local build_search_url = function(search_table)
 	if not base_url or not context_id then
 		return "https://google.com/"
 	end
-	return base_url .. "/cse?cx=" .. context_id --https://cse.google.com/cse?cx=c897a4eacb3fd1332"
+	return base_url .. "/cse?cx=" .. context_id
+end
+
+local build_api_search_url = function(search_table)
+	local context_id = search_table["context_id"]
+	local rest_api_url = search_table["rest_api_url"]
+	local api_key = search_table["api_key"]
+
+	return rest_api_url .. "key=" .. api_key .. "&cx=" .. context_id
 end
 
 M.make_browser_request = function(search_table)
@@ -36,18 +44,29 @@ M.make_browser_request = function(search_table)
 
 	return function()
 		local query = "&q=" .. vim.fn.input("Dev search query: ")
-		Job
-			:new({
-				command = url_command,
-				args = { url .. query },
-				on_stderr = function(err)
-					error("Error executing dev-search with message: " .. err)
-				end,
-				on_stdout = function(err)
-					error("Error executing dev-search with message: " .. err)
-				end,
-			})
-			:start()
+		Job:new({
+			command = url_command,
+			args = { url .. query },
+			on_stderr = function(_)
+				error("Error executing dev-search")
+			end,
+			on_stdout = function(_)
+				error("Error executing dev-search")
+			end,
+		}):start()
+	end
+end
+
+M.make_search_api_request = function(search_table)
+	local api_url = build_api_search_url(search_table)
+
+	return function()
+		local query_input = "&q=" .. vim.fn.input("Dev search api query: ")
+		local url = api_url .. query_input
+		print(url)
+		local result = require("plenary.curl").get(url)
+		local json = vim.json.decode(result["body"])
+		print(vim.inspect(json["items"][1]))
 	end
 end
 

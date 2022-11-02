@@ -7,6 +7,7 @@ local M = {}
 --  Returns nothing, only creates user command for dev search
 M.init_search = function()
 	local make_browser_request = require("dev-search.util").make_browser_request
+	local make_search_api_request = require("dev-search.util").make_search_api_request
 
 	if vim.fn.executable("dev-search") == 0 then
 		vim.api.nvim_notify("executable dev-search doesn't exist", vim.log.levels.ERROR, {})
@@ -15,6 +16,7 @@ M.init_search = function()
 
 	local search_settings = require("dev-search.settings").get_search_settings()
 	local browser_request_fn = make_browser_request(search_settings)
+	local search_api_request_fn = make_search_api_request(search_settings)
 
 	if type(browser_request_fn) == "table" then
 		vim.api.nvim_notify(
@@ -27,6 +29,12 @@ M.init_search = function()
 		"DevSearch",
 		browser_request_fn,
 		{ desc = "Send a developer search request to default browser" }
+	)
+
+	vim.api.nvim_create_user_command(
+		"DevSearchApi",
+		search_api_request_fn,
+		{ desc = "Make a request to the developer search API" }
 	)
 end
 
