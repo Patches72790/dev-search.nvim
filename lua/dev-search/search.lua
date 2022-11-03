@@ -8,6 +8,7 @@ local M = {}
 M.init_search = function()
 	local make_browser_request = require("dev-search.util").make_browser_request
 	local make_search_api_request = require("dev-search.util").make_search_api_request
+	local search_picker = require("dev-search.picker").search_picker
 
 	if vim.fn.executable("dev-search") == 0 then
 		vim.api.nvim_notify("executable dev-search doesn't exist", vim.log.levels.ERROR, {})
@@ -36,6 +37,10 @@ M.init_search = function()
 		search_api_request_fn,
 		{ desc = "Make a request to the developer search API" }
 	)
+
+	vim.api.nvim_create_user_command("TelescopeDevSearch", function()
+		search_picker({})
+	end, { desc = "Search api results with telescope" })
 end
 
 return M
