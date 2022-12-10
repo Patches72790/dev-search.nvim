@@ -10,11 +10,6 @@ M.init_search = function()
 	local make_search_api_request = require("dev-search.util").make_search_api_request
 	local search_picker = require("dev-search.picker").search_picker
 
-	if vim.fn.executable("dev-search") == 0 then
-		vim.api.nvim_notify("executable dev-search doesn't exist", vim.log.levels.ERROR, {})
-		return
-	end
-
 	local search_settings = require("dev-search.settings").get_search_settings()
 	local browser_request_fn = make_browser_request(search_settings)
 	local search_api_request_fn = make_search_api_request(search_settings)
