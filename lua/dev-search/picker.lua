@@ -3,40 +3,75 @@ local M = {}
 local entry_display = require("telescope.pickers.entry_display")
 local pickers = require("telescope.pickers")
 local finders = require("telescope.finders")
-local conf = require("telescope.config").values
+local sorters = require("telescope.sorters")
 local make_entry = require("telescope.make_entry")
+local cat_previewer = require("telescope.config").values.cat_previewer
 
 local make_search_result_entries = function()
 	return {
-		{ text = "test text", title = "Test Title 1", description = "Test description 1", url = "testurl.com" },
-		{ text = "test text 2", title = "Test Title 2", description = "Test description 2", url = "testurl.com" },
-		{ text = "test text 3", title = "Test Title 3", description = "Test description 3", url = "testurl.com" },
-		{ text = "test text 4", title = "Test Title 4", description = "Test description 4", url = "testurl.com" },
+		{
+			value = 1,
+			text = "test text",
+			title = "Test Title 1",
+			description = "Test description 1",
+			url = "testurl.com",
+		},
+		{
+			value = 2,
+			text = "test text 2",
+			title = "Test Title 2",
+			description = "Test description 2",
+			url = "testurl.com",
+		},
+		{
+			value = 3,
+			text = "test text 3",
+			title = "Test Title 3",
+			description = "Test description 3",
+			url = "testurl.com",
+		},
+		{
+			value = 4,
+			text = "test text 4",
+			title = "Test Title 4",
+			description = "Test description 4",
+			url = "testurl.com",
+		},
 	}
 end
 
 local gen_from_search_results = function(opts)
+	-- this defines your column layout, each width table a column
 	local displayer = entry_display.create({
-		separator = " | ",
+		separator = " ",
 		items = {
-			{ width = 5 },
+			{ width = 2 },
+			{ width = 15 },
+			{ width = 25 },
 			{ remaining = true },
 		},
 	})
 
 	local make_display = function(entry)
+		-- apply additional displays here
 		return displayer({
-			entry.title,
+			{ entry.value, "TelescopeResultsLineNr" },
+			{ entry.ordinal, "TelescopeResultsIdentifier" },
+			entry.description,
 			entry.url,
 		})
 	end
 
 	return function(entry)
+		-- value, ordinal and display are all required
+		-- the rest are defined as additional entries
 		return make_entry.set_default_entry_mt({
+			value = entry.value,
+			ordinal = entry.title,
 			display = make_display,
-			title = entry.title,
+			url = entry.url,
 			description = entry.description,
-		}, opts)
+		})
 	end
 end
 
@@ -44,16 +79,15 @@ M.search_picker = function(opts)
 	-- TODO should be items results from search api call
 	local search_results = make_search_result_entries()
 
-	print(vim.inspect(search_results))
 	pickers
-		.new(opts, {
+		.new({
 			prompt_title = "Search Api",
 			finder = finders.new_table({
 				results = search_results,
 				entry_maker = gen_from_search_results(opts),
 			}),
-			sorter = conf.generic_sorter(opts),
-			previewer = conf.grep_previewer(opts),
+			sorter = sorters.get_generic_fuzzy_sorter(opts),
+			previewer = cat_previewer,
 		})
 		:find()
 end

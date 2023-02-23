@@ -57,12 +57,23 @@ M.make_browser_request = function(search_table)
 	end
 end
 
+local function encodeURI(str)
+	local encodingsMap = {
+		[" "] = "%20",
+		["\t"] = "%09",
+		["\n"] = "%A",
+	}
+	-- TODO => implement encoding
+	return str
+end
+
 M.make_search_api_request = function(search_table)
 	local api_url = build_api_search_url(search_table)
 
 	return function()
 		local query_input = "&q=" .. vim.fn.input("Dev search api query: ")
-		local url = api_url .. query_input
+		local encodedQuery = encodeURI(query_input)
+		local url = api_url .. encodedQuery
 		print(url)
 		local result = require("plenary.curl").get(url)
 		local json = vim.json.decode(result["body"])
