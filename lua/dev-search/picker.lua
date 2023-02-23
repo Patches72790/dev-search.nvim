@@ -5,7 +5,7 @@ local pickers = require("telescope.pickers")
 local finders = require("telescope.finders")
 local sorters = require("telescope.sorters")
 local make_entry = require("telescope.make_entry")
-local cat_previewer = require("telescope.config").values.cat_previewer
+local buffer_previewer = require("telescope.previewers").new_buffer_previewer
 
 local make_search_result_entries = function()
 	return {
@@ -79,15 +79,22 @@ M.search_picker = function(opts)
 	-- TODO should be items results from search api call
 	local search_results = make_search_result_entries()
 
+	local previewer = buffer_previewer({
+		define_preview = function(self, entry, status)
+			--print(vim.inspect(entry))
+			return entry
+		end,
+		title = "Dev Search API Preview",
+	})
 	pickers
 		.new({
-			prompt_title = "Search Api",
+			prompt_title = "Dev Search Api",
 			finder = finders.new_table({
 				results = search_results,
 				entry_maker = gen_from_search_results(opts),
 			}),
 			sorter = sorters.get_generic_fuzzy_sorter(opts),
-			previewer = cat_previewer,
+			previewer = previewer,
 		})
 		:find()
 end
