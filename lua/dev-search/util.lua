@@ -57,6 +57,22 @@ M.make_browser_request = function(search_table)
 	end
 end
 
+M.open_link_in_browser = function(link)
+	local url_command = find_open_url_command()
+	return function()
+		Job:new({
+			command = url_command,
+			args = { link },
+			on_stderr = function(_)
+				error("Error executing dev-search")
+			end,
+			on_stdout = function(_)
+				error("Error executing dev-search")
+			end,
+		}):start()
+	end
+end
+
 local function encodeURI(str)
 	local encodingsMap = {
 		[" "] = "%20",
@@ -65,6 +81,17 @@ local function encodeURI(str)
 	}
 	-- TODO => implement encoding
 	return str
+end
+
+local function get_encoded_query_input()
+	-- this requires re-architecting some of my code
+	-- to work with this ui input callback
+	-- the gain is that we can use a pretty vim ui instead of command line search
+	vim.ui.input({
+		prompt = "Dev search api query: ",
+	}, function(input)
+		return input
+	end)
 end
 
 M.make_search_api_request = function(search_table)
@@ -77,7 +104,7 @@ M.make_search_api_request = function(search_table)
 		print(url)
 		local result = require("plenary.curl").get(url)
 		local json = vim.json.decode(result["body"])
-		print(vim.inspect(json["items"][1]))
+		return json
 	end
 end
 

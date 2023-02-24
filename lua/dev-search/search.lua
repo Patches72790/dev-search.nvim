@@ -34,7 +34,9 @@ M.init_search = function()
 	)
 
 	vim.api.nvim_create_user_command("TelescopeDevSearch", function()
-		search_picker({})
+		search_picker({
+			search_fn = search_api_request_fn,
+		})
 	end, { desc = "Search api results with telescope" })
 end
 

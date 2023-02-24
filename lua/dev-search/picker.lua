@@ -6,6 +6,8 @@ local finders = require("telescope.finders")
 local sorters = require("telescope.sorters")
 local make_entry = require("telescope.make_entry")
 local buffer_previewer = require("telescope.previewers").new_buffer_previewer
+local action_state = require("telescope.actions.state")
+local open_link_in_browser = require("dev-search.util").open_link_in_browser
 
 local make_search_result_entries = function()
 	return {
@@ -46,8 +48,7 @@ local gen_from_search_results = function(opts)
 		separator = " ",
 		items = {
 			{ width = 2 },
-			{ width = 15 },
-			{ width = 25 },
+			{ width = 20 },
 			{ remaining = true },
 		},
 	})
@@ -56,45 +57,79 @@ local gen_from_search_results = function(opts)
 		-- apply additional displays here
 		return displayer({
 			{ entry.value, "TelescopeResultsLineNr" },
-			{ entry.ordinal, "TelescopeResultsIdentifier" },
-			entry.description,
-			entry.url,
+			{ entry.prettyLink, "TelescopeResultsIdentifier" },
+			entry.title,
 		})
 	end
 
 	return function(entry)
 		-- value, ordinal and display are all required
-		-- the rest are defined as additional entries
+		-- the rest are defined as additional entries for your data type
 		return make_entry.set_default_entry_mt({
-			value = entry.value,
-			ordinal = entry.title,
 			display = make_display,
-			url = entry.url,
-			description = entry.description,
+			value = entry.value,
+			ordinal = entry.value,
+			title = entry.title,
+			snippet = entry.snippet,
+			prettyLink = entry.prettyLink,
+			searchLink = entry.searchLink,
 		})
 	end
 end
 
-M.search_picker = function(opts)
-	-- TODO should be items results from search api call
-	local search_results = make_search_result_entries()
-
-	local previewer = buffer_previewer({
-		define_preview = function(self, entry, status)
-			--print(vim.inspect(entry))
-			return entry
+local function make_search_previewer(opts)
+	-- add some text from search entry to buffer in previewer...
+	return buffer_previewer({
+		define_preview = function(self, entry, _)
+			vim.api.nvim_buf_set_lines(self.state.bufnr, 0, 0, false, {
+				entry.snippet,
+			})
 		end,
 		title = "Dev Search API Preview",
 	})
+end
+
+local enter = function(_)
+	-- open link of selected entry in browser...
+	local entry = action_state.get_selected_entry()
+	print("in do search entry")
+	print(vim.inspect(entry))
+	open_link_in_browser(entry.searchLink)()
+end
+
+local response_mapper = function()
+	local count = 1
+	return function(entry)
+		return {
+			value = (function()
+				count = count + 1
+				return count - 1
+			end)(),
+			title = entry.title,
+			prettyLink = entry.displayLink,
+			snippet = entry.snippet,
+			searchLink = entry.link,
+		}
+	end
+end
+
+M.search_picker = function(opts)
+	local search_response = opts.search_fn()
+	local mapped_search_results = vim.tbl_map(response_mapper(), search_response["items"])
+
 	pickers
 		.new({
 			prompt_title = "Dev Search Api",
 			finder = finders.new_table({
-				results = search_results,
+				results = mapped_search_results,
 				entry_maker = gen_from_search_results(opts),
 			}),
 			sorter = sorters.get_generic_fuzzy_sorter(opts),
-			previewer = previewer,
+			previewer = make_search_previewer(opts),
+			attach_mappings = function(prompt_bufnr, map)
+				map("i", "<CR>", enter)
+				return true
+			end,
 		})
 		:find()
 end
